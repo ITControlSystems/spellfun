@@ -130,7 +130,7 @@ const LessonPractice: React.FC = () => {
 
   // Sync voice service with current settings on mount
   useEffect(() => {
-    const voiceMethod = localStorage.getItem('voiceMethod') || 'vits-web';
+    const voiceMethod = localStorage.getItem('voiceMethod') || 'built-in';
     voiceService.setVoiceMethod(voiceMethod as 'built-in' | 'vits-web');
   }, []);
 
@@ -138,7 +138,7 @@ const LessonPractice: React.FC = () => {
   const speakWord = async (word: string) => {
     try {
       // Always sync with current localStorage setting
-      const voiceMethod = localStorage.getItem('voiceMethod') || 'vits-web';
+      const voiceMethod = localStorage.getItem('voiceMethod') || 'built-in';
       voiceService.setVoiceMethod(voiceMethod as 'built-in' | 'vits-web');
       
       // Only show download progress for vits-web method
