@@ -12,7 +12,7 @@ class VoiceService {
   private initializedVoiceId: string | null = null;
   private currentAudio: HTMLAudioElement | null = null;
   private isDownloading = false;
-  private voiceMethod: VoiceMethod = 'vits-web';
+  private voiceMethod: VoiceMethod = 'built-in';
   private builtInVoice: SpeechSynthesisVoice | null = null;
 
   setVoiceMethod(method: VoiceMethod): void {

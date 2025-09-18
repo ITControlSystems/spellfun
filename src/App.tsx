@@ -33,7 +33,7 @@ function App() {
     indexedDBService.init().catch(console.error);
     
     // Initialize voice service with saved method
-    const voiceMethod = localStorage.getItem('voiceMethod') || 'vits-web';
+    const voiceMethod = localStorage.getItem('voiceMethod') || 'built-in';
     voiceService.setVoiceMethod(voiceMethod as 'built-in' | 'vits-web');
   }, []);
 

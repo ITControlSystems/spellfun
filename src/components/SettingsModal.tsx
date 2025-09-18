@@ -19,7 +19,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose, value, onC
   const [downloading, setDownloading] = useState(false);
   const [progressText, setProgressText] = useState<string>('');
   const [voiceMethod, setVoiceMethod] = useState<string>(() => 
-    localStorage.getItem('voiceMethod') || 'vits-web'
+    localStorage.getItem('voiceMethod') || 'built-in'
   );
   const [selectedVoice, setSelectedVoice] = useState<string>(() => 
     localStorage.getItem('ttsVoiceId') || 'en_US-hfc_female-medium'
