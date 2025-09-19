@@ -6,7 +6,6 @@ import {
   Button,
   Card,
   CardContent,
-  TextField,
   Box,
   LinearProgress,
   IconButton,
@@ -27,6 +26,8 @@ import {
 import { indexedDBService, Lesson, LessonProgress } from '../services/IndexedDBService';
 import { voiceService } from '../services/VoiceService';
 import FireworksAnimation from './FireworksAnimation';
+import VirtualKeyboard from './VirtualKeyboard';
+import UserInputDisplay from './UserInputDisplay';
  
 
 interface PracticeState {
@@ -57,7 +58,6 @@ const LessonPractice: React.FC = () => {
   const [showFireworks, setShowFireworks] = useState(false);
   const [showCompletionDialog, setShowCompletionDialog] = useState(false);
   const [loading, setLoading] = useState(true);
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const loadLessonData = useCallback(async () => {
     if (!lessonId) return;
@@ -177,29 +177,24 @@ const LessonPractice: React.FC = () => {
     if (practiceWords.length > 0) {
       const word = practiceWords[practiceState.currentWordIndex];
       if (word) {
-        // Focus the input field immediately when button is clicked
-        if (inputRef.current) {
-          inputRef.current.focus();
-        }
-        
         await speakWord(word);
-        
-        // Ensure focus is maintained after speaking
-        setTimeout(() => {
-          if (inputRef.current) {
-            inputRef.current.focus();
-          }
-        }, 300);
       }
     }
   };
 
 
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleKeyPress = (letter: string) => {
     setPracticeState(prev => ({
       ...prev,
-      userInput: event.target.value,
+      userInput: prev.userInput + letter,
+    }));
+  };
+
+  const handleBackspace = () => {
+    setPracticeState(prev => ({
+      ...prev,
+      userInput: prev.userInput.slice(0, -1),
     }));
   };
 
@@ -242,12 +237,6 @@ const LessonPractice: React.FC = () => {
       }));
     }
 
-    // Focus input for next word
-    setTimeout(() => {
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
-    }, 100);
   };
 
   const handleRestartLesson = () => {
@@ -302,7 +291,7 @@ const LessonPractice: React.FC = () => {
     }
   };
 
-  const handleKeyPress = (event: React.KeyboardEvent) => {
+  const handleEnterKey = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter' && !practiceState.showResult) {
       handleSubmit();
     } else if (event.key === 'Enter' && practiceState.showResult) {
@@ -404,23 +393,15 @@ const LessonPractice: React.FC = () => {
 
           {!practiceState.showResult ? (
             <Box>
-              <TextField
-                ref={inputRef}
-                fullWidth
-                label="Type the word here"
-                variant="outlined"
-                value={practiceState.userInput}
-                onChange={handleInputChange}
+              <UserInputDisplay 
+                userInput={practiceState.userInput}
+                disabled={false}
+              />
+              <VirtualKeyboard
                 onKeyPress={handleKeyPress}
-                autoFocus
-                autoComplete="new-password"
-                spellCheck={false}
-                inputProps={{
-                  autoCorrect: "off",
-                  autoCapitalize: "off",
-                  inputMode: "text"
-                }}
-                sx={{ mb: 3 }}
+                onBackspace={handleBackspace}
+                onEnter={handleSubmit}
+                disabled={false}
               />
               <Button
                 variant="contained"
@@ -428,6 +409,7 @@ const LessonPractice: React.FC = () => {
                 onClick={handleSubmit}
                 disabled={!practiceState.userInput.trim()}
                 fullWidth
+                sx={{ mt: 2 }}
               >
                 Check Spelling
               </Button>
@@ -445,11 +427,18 @@ const LessonPractice: React.FC = () => {
                   `Incorrect. The correct spelling is: ${currentWord}`
                 )}
               </Alert>
+              <VirtualKeyboard
+                onKeyPress={handleKeyPress}
+                onBackspace={handleBackspace}
+                onEnter={handleNextWord}
+                disabled={true}
+              />
               <Button
                 variant="contained"
                 size="large"
                 onClick={handleNextWord}
                 fullWidth
+                sx={{ mt: 2 }}
                 startIcon={practiceState.isCorrect ? <CheckIcon /> : <CloseIcon />}
               >
                 {practiceState.isCorrect 
