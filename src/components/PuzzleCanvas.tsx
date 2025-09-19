@@ -11,6 +11,90 @@ interface PuzzleCanvasProps {
   size?: 'small' | 'large'; // Size variant for different contexts
 }
 
+// Safari-compatible blur effect implementation
+const applyBlurEffect = (
+  ctx: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  blurAmount: number
+) => {
+  // Create a temporary canvas for the blur effect
+  const tempCanvas = document.createElement('canvas');
+  const tempCtx = tempCanvas.getContext('2d');
+  if (!tempCtx) return;
+
+  tempCanvas.width = width;
+  tempCanvas.height = height;
+
+  // Draw the image to the temporary canvas
+  tempCtx.drawImage(image, x, y, width, height);
+
+  // Get image data
+  const imageData = tempCtx.getImageData(0, 0, width, height);
+  const data = imageData.data;
+
+  // Apply box blur algorithm
+  const radius = Math.ceil(blurAmount / 2);
+
+  // Horizontal blur
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      let r = 0, g = 0, b = 0, a = 0;
+      let count = 0;
+
+      for (let dx = -radius; dx <= radius; dx++) {
+        const nx = x + dx;
+        if (nx >= 0 && nx < width) {
+          const idx = (y * width + nx) * 4;
+          r += data[idx];
+          g += data[idx + 1];
+          b += data[idx + 2];
+          a += data[idx + 3];
+          count++;
+        }
+      }
+
+      const idx = (y * width + x) * 4;
+      data[idx] = r / count;
+      data[idx + 1] = g / count;
+      data[idx + 2] = b / count;
+      data[idx + 3] = a / count;
+    }
+  }
+
+  // Vertical blur
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      let r = 0, g = 0, b = 0, a = 0;
+      let count = 0;
+
+      for (let dy = -radius; dy <= radius; dy++) {
+        const ny = y + dy;
+        if (ny >= 0 && ny < height) {
+          const idx = (ny * width + x) * 4;
+          r += data[idx];
+          g += data[idx + 1];
+          b += data[idx + 2];
+          a += data[idx + 3];
+          count++;
+        }
+      }
+
+      const idx = (y * width + x) * 4;
+      data[idx] = r / count;
+      data[idx + 1] = g / count;
+      data[idx + 2] = b / count;
+      data[idx + 3] = a / count;
+    }
+  }
+
+  // Put the blurred image data back to the main canvas
+  ctx.putImageData(imageData, x, y);
+};
+
 const PuzzleCanvas: React.FC<PuzzleCanvasProps> = ({ earnedPieces, totalPieces, isComplete, imageId, imageOrder, onClick, size = 'small' }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -60,11 +144,9 @@ const PuzzleCanvas: React.FC<PuzzleCanvasProps> = ({ earnedPieces, totalPieces, 
         // Draw the image
         ctx.drawImage(image, 0, 0, width, height);
         
-        // Apply blur effect
+        // Apply blur effect (Safari-compatible implementation)
         if (blurAmount > 0) {
-          ctx.filter = `blur(${blurAmount}px)`;
-          ctx.drawImage(image, 0, 0, width, height);
-          ctx.filter = 'none';
+          applyBlurEffect(ctx, image, 0, 0, width, height, blurAmount);
         }
 
         // Apply grayscale effect
@@ -105,7 +187,7 @@ const PuzzleCanvas: React.FC<PuzzleCanvasProps> = ({ earnedPieces, totalPieces, 
     };
 
     drawImage();
-  }, [earnedPieces, totalPieces, isComplete, imageId, imageOrder]);
+  }, [earnedPieces, totalPieces, isComplete, imageId, imageOrder, size]);
 
   return (
     <Box sx={{ display: 'flex', justifyContent: 'center', mt: size === 'large' ? 0 : 2 }}>
