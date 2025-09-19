@@ -322,39 +322,40 @@ const LessonPractice: React.FC = () => {
   const progressPercentage = (practiceState.completedWords / practiceState.totalWords) * 100;
 
   return (
-    <Container maxWidth="md" sx={{ pt: 2 }}>
+    <Container maxWidth="md" sx={{ pt: 1, pb: 1 }}>
       {showFireworks && <FireworksAnimation />}
       
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
-        <IconButton onClick={() => navigate(-1)} sx={{ mr: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+        <IconButton onClick={() => navigate(-1)} sx={{ mr: 1 }}>
           <ArrowBackIcon />
         </IconButton>
         <Box sx={{ flexGrow: 1 }}>
-          <Typography variant="h4" component="h1" gutterBottom>
+          <Typography variant="h5" component="h1" gutterBottom>
             {lesson.name}
           </Typography>
-          <Typography variant="body1" color="text.secondary">
+          <Typography variant="body2" color="text.secondary">
             Practice your spelling words!
           </Typography>
         </Box>
       </Box>
 
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-            <Typography variant="h6">
+      <Card sx={{ mb: 2 }}>
+        <CardContent sx={{ py: 1.5 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+            <Typography variant="body1">
               Word {practiceState.currentWordIndex + 1} of {practiceState.totalWords}
             </Typography>
             <Chip 
               label={`${practiceState.completedWords}/${practiceState.totalWords} completed`}
               color="primary"
               variant="outlined"
+              size="small"
             />
           </Box>
           <LinearProgress 
             variant="determinate" 
             value={progressPercentage}
-            sx={{ height: 8, borderRadius: 4, mb: 3 }}
+            sx={{ height: 6, borderRadius: 3, mb: 2 }}
           />
         </CardContent>
       </Card>
@@ -362,17 +363,17 @@ const LessonPractice: React.FC = () => {
       
 
       <Card>
-        <CardContent>
-          <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <Typography variant="h5" component="div" gutterBottom color="text.secondary">
+        <CardContent sx={{ py: 2 }}>
+          <Box sx={{ textAlign: 'center', mb: 2 }}>
+            <Typography variant="h6" component="div" gutterBottom color="text.secondary">
               Listen to the word and spell it
             </Typography>
             <Button
               variant="contained"
               startIcon={<VolumeUpIcon />}
               onClick={handleSpeakWord}
-              size="large"
-              sx={{ mb: 2 }}
+              size="medium"
+              sx={{ mb: 1 }}
             >
               Listen to Word
             </Button>
@@ -383,7 +384,7 @@ const LessonPractice: React.FC = () => {
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                   Downloading voice… {ttsProgress}%
                 </Typography>
-                <LinearProgress variant="determinate" value={ttsProgress} sx={{ height: 6, borderRadius: 3 }} />
+                <LinearProgress variant="determinate" value={ttsProgress} sx={{ height: 4, borderRadius: 2 }} />
               </Box>
             )}
             <Typography variant="body2" color="text.secondary">
@@ -405,11 +406,11 @@ const LessonPractice: React.FC = () => {
               />
               <Button
                 variant="contained"
-                size="large"
+                size="medium"
                 onClick={handleSubmit}
                 disabled={!practiceState.userInput.trim()}
                 fullWidth
-                sx={{ mt: 2 }}
+                sx={{ mt: 1 }}
               >
                 Check Spelling
               </Button>
@@ -418,7 +419,7 @@ const LessonPractice: React.FC = () => {
             <Box>
               <Alert 
                 severity={practiceState.isCorrect ? "success" : "error"}
-                sx={{ mb: 3 }}
+                sx={{ mb: 2 }}
                 icon={practiceState.isCorrect ? <CheckIcon /> : <CloseIcon />}
               >
                 {practiceState.isCorrect ? (
@@ -435,10 +436,10 @@ const LessonPractice: React.FC = () => {
               />
               <Button
                 variant="contained"
-                size="large"
+                size="medium"
                 onClick={handleNextWord}
                 fullWidth
-                sx={{ mt: 2 }}
+                sx={{ mt: 1 }}
                 startIcon={practiceState.isCorrect ? <CheckIcon /> : <CloseIcon />}
               >
                 {practiceState.isCorrect 

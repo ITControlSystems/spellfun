@@ -69,15 +69,16 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
   const getKeyStyle = (letter: string) => ({
-    minWidth: '50px',
-    minHeight: '50px',
-    fontSize: '18px',
+    minWidth: '32px',
+    minHeight: '32px',
+    fontSize: '14px',
     fontWeight: 'bold',
     backgroundColor: pressedKey === letter ? '#1976d2' : '#f5f5f5',
     color: pressedKey === letter ? 'white' : 'black',
-    border: '2px solid #ccc',
-    borderRadius: '8px',
+    border: '1px solid #ccc',
+    borderRadius: '4px',
     transition: 'all 0.1s ease',
+    padding: '4px',
     '&:hover': {
       backgroundColor: pressedKey === letter ? '#1976d2' : '#e0e0e0',
     },
@@ -90,15 +91,16 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
   });
 
   const getBackspaceStyle = () => ({
-    minWidth: '80px',
-    minHeight: '50px',
-    fontSize: '16px',
+    minWidth: '60px',
+    minHeight: '32px',
+    fontSize: '12px',
     fontWeight: 'bold',
     backgroundColor: pressedKey === 'BACKSPACE' ? '#d32f2f' : '#f5f5f5',
     color: pressedKey === 'BACKSPACE' ? 'white' : 'black',
-    border: '2px solid #ccc',
-    borderRadius: '8px',
+    border: '1px solid #ccc',
+    borderRadius: '4px',
     transition: 'all 0.1s ease',
+    padding: '4px',
     '&:hover': {
       backgroundColor: pressedKey === 'BACKSPACE' ? '#d32f2f' : '#e0e0e0',
     },
@@ -115,20 +117,20 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
       display: 'flex', 
       flexDirection: 'column', 
       alignItems: 'center', 
-      gap: 2,
-      p: 2,
+      gap: 1,
+      p: 1,
       backgroundColor: '#fafafa',
-      borderRadius: 2,
+      borderRadius: 1,
       border: '1px solid #e0e0e0'
     }}>
-      <Typography variant="h6" gutterBottom>
+      <Typography variant="body2" sx={{ fontSize: '12px', mb: 0.5 }}>
         Virtual Keyboard
       </Typography>
       
       {/* Letter keys in rows */}
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
         {/* Row 1: A-M */}
-        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+        <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center', flexWrap: 'wrap' }}>
           {letters.slice(0, 13).map((letter) => (
             <Button
               key={letter}
@@ -145,7 +147,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
         </Box>
         
         {/* Row 2: N-Z */}
-        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+        <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center', flexWrap: 'wrap' }}>
           {letters.slice(13).map((letter) => (
             <Button
               key={letter}
@@ -162,7 +164,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
         </Box>
         
         {/* Backspace and Enter keys */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, mt: 1 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 0.5, mt: 0.5 }}>
           <Button
             variant="outlined"
             sx={getBackspaceStyle()}
@@ -171,21 +173,22 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
             onMouseLeave={() => setPressedKey(null)}
             disabled={disabled}
           >
-            ⌫ Backspace
+            ⌫
           </Button>
           {onEnter && (
             <Button
               variant="outlined"
               sx={{
-                minWidth: '80px',
-                minHeight: '50px',
-                fontSize: '16px',
+                minWidth: '60px',
+                minHeight: '32px',
+                fontSize: '12px',
                 fontWeight: 'bold',
                 backgroundColor: pressedKey === 'ENTER' ? '#4caf50' : '#f5f5f5',
                 color: pressedKey === 'ENTER' ? 'white' : 'black',
-                border: '2px solid #ccc',
-                borderRadius: '8px',
+                border: '1px solid #ccc',
+                borderRadius: '4px',
                 transition: 'all 0.1s ease',
+                padding: '4px',
                 '&:hover': {
                   backgroundColor: pressedKey === 'ENTER' ? '#4caf50' : '#e0e0e0',
                 },
@@ -208,7 +211,7 @@ const VirtualKeyboard: React.FC<VirtualKeyboardProps> = ({
               onMouseLeave={() => setPressedKey(null)}
               disabled={disabled}
             >
-              ↵ Enter
+              ↵
             </Button>
           )}
         </Box>
