@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/cli": "^7.4.3",
+    "@capacitor/core": "^7.4.3",
     "@diffusionstudio/vits-web": "^1.0.3",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
@@ -31,7 +34,12 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "build:android": "npm run build && npx cap sync android && npx cap build android",
+    "build:apk": "npm run build:android && cd android && ./gradlew assembleDebug",
+    "build:apk-release": "npm run build:android && cd android && ./gradlew assembleRelease",
+    "open:android": "npx cap open android",
+    "sync:android": "npx cap sync android"
   },
   "eslintConfig": {
     "extends": [

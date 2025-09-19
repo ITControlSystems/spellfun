@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">SpellFun</string>
+    <string name="title_activity_main">SpellFun</string>
+    <string name="package_name">com.spellfun.app</string>
+    <string name="custom_url_scheme">com.spellfun.app</string>
+</resources>
