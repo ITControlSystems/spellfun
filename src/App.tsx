@@ -57,6 +57,11 @@ function App() {
         voiceService.setVoiceMethod(voiceMethod as 'built-in' | 'vits-web');
         console.log('Voice service initialized with method:', voiceMethod);
         
+        // Give voice service extra time to load voices in WebView
+        if (Capacitor.isNativePlatform()) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+        
         console.log('App initialization completed successfully');
         setIsInitialized(true);
       } catch (error) {

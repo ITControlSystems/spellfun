@@ -1,4 +1,6 @@
 import * as tts from '@diffusionstudio/vits-web';
+import { Capacitor } from '@capacitor/core';
+import { TTS } from 'capacitor-tts';
 
 export type TtsDownloadProgress = {
   url: string;
@@ -14,6 +16,7 @@ class VoiceService {
   private isDownloading = false;
   private voiceMethod: VoiceMethod = 'built-in';
   private builtInVoice: SpeechSynthesisVoice | null = null;
+  private voicesLoaded = false;
 
   setVoiceMethod(method: VoiceMethod): void {
     this.voiceMethod = method;
@@ -23,9 +26,63 @@ class VoiceService {
   }
 
   private initializeBuiltInVoice(): void {
+    // Check if speechSynthesis is available
+    if (typeof speechSynthesis === 'undefined') {
+      console.warn('Speech synthesis not available in this environment');
+      return;
+    }
+
+    // Check if voices are already loaded
+    if (this.voicesLoaded) {
+      this.selectBuiltInVoice();
+      return;
+    }
+
+    // Try to get voices immediately
+    const voices = speechSynthesis.getVoices();
+    if (voices.length > 0) {
+      this.voicesLoaded = true;
+      this.selectBuiltInVoice();
+      return;
+    }
+
+    // Voices not loaded yet, listen for the voiceschanged event
+    const handleVoicesChanged = () => {
+      this.voicesLoaded = true;
+      this.selectBuiltInVoice();
+      speechSynthesis.removeEventListener('voiceschanged', handleVoicesChanged);
+    };
+
+    speechSynthesis.addEventListener('voiceschanged', handleVoicesChanged);
+
+    // Fallback: try again after a short delay
+    setTimeout(() => {
+      if (!this.voicesLoaded) {
+        const delayedVoices = speechSynthesis.getVoices();
+        if (delayedVoices.length > 0) {
+          this.voicesLoaded = true;
+          this.selectBuiltInVoice();
+          speechSynthesis.removeEventListener('voiceschanged', handleVoicesChanged);
+        }
+      }
+    }, 1000);
+  }
+
+  private selectBuiltInVoice(): void {
+    if (typeof speechSynthesis === 'undefined') {
+      console.warn('Speech synthesis not available in this environment');
+      return;
+    }
+
     const voices = speechSynthesis.getVoices();
     // Prefer English voices, fallback to first available
     this.builtInVoice = voices.find(v => v.lang.startsWith('en')) || voices[0] || null;
+    
+    if (!this.builtInVoice) {
+      console.warn('No speech synthesis voices available');
+    } else {
+      console.log('Selected voice:', this.builtInVoice.name, this.builtInVoice.lang);
+    }
   }
 
   async init(voiceId: string, onProgress?: (p: TtsDownloadProgress) => void): Promise<void> {
@@ -64,7 +121,35 @@ class VoiceService {
   }
 
   private async speakBuiltIn(text: string): Promise<void> {
+    // Use Capacitor TTS plugin if running in native environment
+    if (Capacitor.isNativePlatform()) {
+      try {
+        await TTS.speak({
+          text: text,
+          rate: 0.8,
+          pitch: 1.0,
+          volume: 1.0
+        });
+        return;
+      } catch (error) {
+        console.error('Capacitor TTS error:', error);
+        // Fall through to web-based speech synthesis if Capacitor TTS fails
+      }
+    }
+
     return new Promise((resolve, reject) => {
+      // Check if speechSynthesis is available
+      if (typeof speechSynthesis === 'undefined') {
+        console.warn('Speech synthesis not available in this environment');
+        resolve(); // Resolve silently to prevent app crashes
+        return;
+      }
+
+      // Ensure voices are loaded before speaking
+      if (!this.voicesLoaded) {
+        this.initializeBuiltInVoice();
+      }
+
       const utterance = new SpeechSynthesisUtterance(text);
       
       if (this.builtInVoice) {
@@ -76,9 +161,17 @@ class VoiceService {
       utterance.volume = 1.0;
 
       utterance.onend = () => resolve();
-      utterance.onerror = (error) => reject(error);
+      utterance.onerror = (error) => {
+        console.error('Speech synthesis error:', error);
+        reject(error);
+      };
       
-      speechSynthesis.speak(utterance);
+      try {
+        speechSynthesis.speak(utterance);
+      } catch (error) {
+        console.error('Failed to start speech synthesis:', error);
+        reject(error);
+      }
     });
   }
 
@@ -101,7 +194,16 @@ class VoiceService {
 
   stop(): void {
     if (this.voiceMethod === 'built-in') {
-      speechSynthesis.cancel();
+      // Use Capacitor TTS plugin if running in native environment
+      if (Capacitor.isNativePlatform()) {
+        try {
+          TTS.stop();
+        } catch (error) {
+          console.error('Capacitor TTS stop error:', error);
+        }
+      } else if (typeof speechSynthesis !== 'undefined') {
+        speechSynthesis.cancel();
+      }
     } else if (this.currentAudio) {
       try {
         this.currentAudio.pause();
@@ -117,7 +219,7 @@ class VoiceService {
 
   get isInitialized(): boolean {
     if (this.voiceMethod === 'built-in') {
-      return this.builtInVoice !== null;
+      return this.voicesLoaded && this.builtInVoice !== null;
     }
     return this.initializedVoiceId !== null;
   }

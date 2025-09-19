@@ -30,7 +30,7 @@ fi
 echo "🚀 Uploading APK to GitHub releases..."
 
 # Create a new release with the APK
-gh release create latest \
+gh release create latest.0 \
   --title "SpellFun Fire Kids - Latest Release" \
   --notes "Latest version of SpellFun Fire Kids app for Android.
 

@@ -413,6 +413,13 @@ const LessonPractice: React.FC = () => {
                 onChange={handleInputChange}
                 onKeyPress={handleKeyPress}
                 autoFocus
+                autoComplete="new-password"
+                spellCheck={false}
+                inputProps={{
+                  autoCorrect: "off",
+                  autoCapitalize: "off",
+                  inputMode: "text"
+                }}
                 sx={{ mb: 3 }}
               />
               <Button
