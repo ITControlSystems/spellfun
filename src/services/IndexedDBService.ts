@@ -27,11 +27,23 @@ class IndexedDBService {
 
   async init(): Promise<void> {
     return new Promise((resolve, reject) => {
+      // Check if IndexedDB is available
+      if (!window.indexedDB) {
+        console.warn('IndexedDB not available, using fallback storage');
+        resolve();
+        return;
+      }
+
       const request = indexedDB.open(this.dbName, this.version);
 
-      request.onerror = () => reject(request.error);
+      request.onerror = () => {
+        console.error('IndexedDB error:', request.error);
+        reject(request.error);
+      };
+      
       request.onsuccess = () => {
         this.db = request.result;
+        console.log('IndexedDB opened successfully');
         resolve();
       };
 
@@ -87,12 +99,20 @@ class IndexedDBService {
   }
 
   async getAllUsers(): Promise<User[]> {
-    const store = await this.getStore('users');
-    return new Promise((resolve, reject) => {
-      const request = store.getAll();
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
-    });
+    try {
+      const store = await this.getStore('users');
+      return new Promise((resolve, reject) => {
+        const request = store.getAll();
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => {
+          console.error('Error getting users:', request.error);
+          resolve([]); // Return empty array instead of rejecting
+        };
+      });
+    } catch (error) {
+      console.error('Error accessing users store:', error);
+      return []; // Return empty array if store access fails
+    }
   }
 
   async getUserById(id: string): Promise<User | null> {
