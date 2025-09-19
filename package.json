@@ -36,9 +36,10 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "build:android": "npm run build && npx cap sync android && npx cap build android",
-    "build:apk": "npm run build:android && cd android && ./gradlew assembleDebug",
+    "build:android": "npm run build && npx cap sync android",
+    "build:apk": "npm run build:android && cd android && ./gradlew assembleDebug && mkdir -p ../build/apk && cp app/build/outputs/apk/debug/app-debug.apk ../build/apk/spellfun-fire-kids.apk",
     "build:apk-release": "npm run build:android && cd android && ./gradlew assembleRelease",
+    "build:apk-debug": "npm run build:android && cd android && ./gradlew assembleDebug",
     "open:android": "npx cap open android",
     "sync:android": "npx cap sync android"
   },
