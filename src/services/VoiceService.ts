@@ -1,6 +1,4 @@
 import * as tts from '@diffusionstudio/vits-web';
-import { Capacitor } from '@capacitor/core';
-import { TTS } from 'capacitor-tts';
 
 export type TtsDownloadProgress = {
   url: string;
@@ -121,22 +119,6 @@ class VoiceService {
   }
 
   private async speakBuiltIn(text: string): Promise<void> {
-    // Use Capacitor TTS plugin if running in native environment
-    if (Capacitor.isNativePlatform()) {
-      try {
-        await TTS.speak({
-          text: text,
-          rate: 0.8,
-          pitch: 1.0,
-          volume: 1.0
-        });
-        return;
-      } catch (error) {
-        console.error('Capacitor TTS error:', error);
-        // Fall through to web-based speech synthesis if Capacitor TTS fails
-      }
-    }
-
     return new Promise((resolve, reject) => {
       // Check if speechSynthesis is available
       if (typeof speechSynthesis === 'undefined') {
@@ -194,14 +176,7 @@ class VoiceService {
 
   stop(): void {
     if (this.voiceMethod === 'built-in') {
-      // Use Capacitor TTS plugin if running in native environment
-      if (Capacitor.isNativePlatform()) {
-        try {
-          TTS.stop();
-        } catch (error) {
-          console.error('Capacitor TTS stop error:', error);
-        }
-      } else if (typeof speechSynthesis !== 'undefined') {
+      if (typeof speechSynthesis !== 'undefined') {
         speechSynthesis.cancel();
       }
     } else if (this.currentAudio) {
