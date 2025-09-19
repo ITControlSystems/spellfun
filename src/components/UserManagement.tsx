@@ -25,12 +25,15 @@ const UserManagement: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log('UserManagement component mounted');
     loadUsers();
   }, []);
 
   const loadUsers = async () => {
     try {
+      console.log('Loading users...');
       const allUsers = await indexedDBService.getAllUsers();
+      console.log('Users loaded:', allUsers);
       setUsers(allUsers);
     } catch (error) {
       console.error('Error loading users:', error);
@@ -60,6 +63,9 @@ const UserManagement: React.FC = () => {
     return (
       <Container maxWidth="md" sx={{ textAlign: 'center', pt: 2 }}>
         <Typography variant="h4">Loading...</Typography>
+        <Typography variant="body2" sx={{ mt: 2 }}>
+          If this takes too long, there may be an issue with the app.
+        </Typography>
       </Container>
     );
   }

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import IconButton from '@mui/material/IconButton';
 import SettingsIcon from '@mui/icons-material/Settings';
 import SettingsModal from './components/SettingsModal';
+import ErrorBoundary from './components/ErrorBoundary';
 import { indexedDBService } from './services/IndexedDBService';
 import { voiceService } from './services/VoiceService';
 import UserManagement from './components/UserManagement';
@@ -29,12 +30,21 @@ function App() {
   const [voiceId, setVoiceId] = useState<string>(() => localStorage.getItem('ttsVoiceId') || 'en_US-hfc_female-medium');
 
   useEffect(() => {
+    console.log('App component mounted');
+    
     // Initialize IndexedDB when app starts
-    indexedDBService.init().catch(console.error);
+    indexedDBService.init()
+      .then(() => {
+        console.log('IndexedDB initialized successfully');
+      })
+      .catch((error) => {
+        console.error('IndexedDB initialization failed:', error);
+      });
     
     // Initialize voice service with saved method
     const voiceMethod = localStorage.getItem('voiceMethod') || 'built-in';
     voiceService.setVoiceMethod(voiceMethod as 'built-in' | 'vits-web');
+    console.log('Voice service initialized with method:', voiceMethod);
   }, []);
 
   useEffect(() => {
@@ -42,36 +52,38 @@ function App() {
   }, [voiceId]);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Router>
-        <div className="App" style={{ margin: 0, padding: 0 }}>
-          <IconButton 
-            sx={{ 
-              position: 'fixed', 
-              top: 16, 
-              right: 16, 
-              zIndex: 1100,
-              backgroundColor: 'rgba(255, 255, 255, 0.9)',
-              '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 1)',
-              }
-            }}
-            onClick={() => setSettingsOpen(true)} 
-            aria-label="settings"
-          >
-            <SettingsIcon />
-          </IconButton>
-          <Routes>
-            <Route path="/" element={<UserManagement />} />
-            <Route path="/user/:userId" element={<UserProfile />} />
-            <Route path="/lesson/:lessonId/practice/:userId" element={<LessonPractice />} />
-            <Route path="/secret-puzzle-gallery" element={<PuzzleGallery />} />
-          </Routes>
-          <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} value={voiceId} onChange={setVoiceId} />
-        </div>
-      </Router>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Router>
+          <div className="App" style={{ margin: 0, padding: 0 }}>
+            <IconButton 
+              sx={{ 
+                position: 'fixed', 
+                top: 16, 
+                right: 16, 
+                zIndex: 1100,
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 1)',
+                }
+              }}
+              onClick={() => setSettingsOpen(true)} 
+              aria-label="settings"
+            >
+              <SettingsIcon />
+            </IconButton>
+            <Routes>
+              <Route path="/" element={<UserManagement />} />
+              <Route path="/user/:userId" element={<UserProfile />} />
+              <Route path="/lesson/:lessonId/practice/:userId" element={<LessonPractice />} />
+              <Route path="/secret-puzzle-gallery" element={<PuzzleGallery />} />
+            </Routes>
+            <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} value={voiceId} onChange={setVoiceId} />
+          </div>
+        </Router>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 
